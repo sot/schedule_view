@@ -53,12 +53,17 @@ def get_options():
 
 
 def main(opt):
+    """
+    Perform a bunch of queries and processing to build something like the
+    SOT MP schedule page, only with automated info about which loads ran.
+    """
 
     outdir = opt.outdir
     nav = web_nav
     if opt.fileurls:
         nav = file_nav
 
+    # fetch all of the loads that ran
     loads = sqlaca.fetchall("""select load_segment_id,
                                l.load_segment, l.year,
                                p.replan, p.bcf_cmd_count, p.replan_cmds,
@@ -77,6 +82,7 @@ def main(opt):
                                     and b.file = p.file and b.year = p.year )
                                order by t.datestart""")
 
+    # get all of the short term schedules from MP
     short_term_top = glob('%s/cycle*/????????.html' % mp_sched_path)
     short_terms = []
     for st_path in short_term_top:
@@ -116,7 +122,7 @@ def main(opt):
                         where processing_tstart > '2002:007:13:35:00.000'
                         order by sumfile_modtime""")
 
-    sched_keys = ['sumfile_modtime', 'dir', 'doprint', 
+    sched_keys = ['sumfile_modtime', 'dir', 'doprint',
                   'color', 'runstopcolor',
                   'label', 'name',
                   'version', 'sortday', 'cycle', 'st_link',
@@ -143,9 +149,9 @@ def main(opt):
         comment='&nbsp;',
         mp_comment='&nbsp;')
 
-    # push dictionaries representing schedules to the schedules[]
-    # this is basically taking the planning week from the db query above,
-    # and finding out what happened to it.
+
+    # for each planned week, figure out if it ran or not, and either way,
+    # push a dictionary for it to the master list
     schedule = []
     for week in planning:
         sched = def_sched.copy()
@@ -226,8 +232,12 @@ def main(opt):
     schedule = schedule[::-1]
 
     # make html
+    TASK_TEMPLATES = os.path.join(os.environ['SKA'], 'share',
+                                  'schedule_view', 'templates')
     jinja_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('./templates'))
+        loader=jinja2.FileSystemLoader(TASK_TEMPLATES))
+
+    # loop to make cycle-specific pages
     cycle_labels = []
     template = jinja_env.get_template('schedule.html')
     for cycle in np.unique(schedule['cycle']):
@@ -245,13 +255,14 @@ def main(opt):
                                 start=daymin,
                                 stop=daymax,
                                 file='schedule_%s.html' % cycle))
-
+    # then make one big page
     page = template.render(nav=nav,
                            schedule=schedule)
     f = open(os.path.join(outdir, 'schedules_all.html' % cycle), 'w')
     f.write(page)
     f.close()
 
+    # and make the most recent one again as a top page
     template = jinja_env.get_template('master_schedule.html')
     maxcycle = np.max(schedule['cycle'])
     page = template.render(nav=nav,
