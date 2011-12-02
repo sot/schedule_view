@@ -1,0 +1,69 @@
+<HTML>
+<HEAD><TITLE>Observing Schedule</TITLE></HEAD>
+<BODY>
+
+
+<H1>Current Cycle</H1>
+
+
+<TABLE BORDER=1>
+<TR>
+<TH>Schedule</TH>
+<TH>MP</TH>
+<TH>Starcheck</TH>
+<TH>Planned Start</TH>
+<TH>Planned Stop</TH>
+<TH>Actual Cmd Start</TH>
+<TH>Actual Cmd Stop</TH>
+<TH>Auto Comment</TH>
+<TH>MP Comment</TH>
+</TR>
+
+{% for week in schedule %}
+<TR>
+{% if week.doprint is none %}
+<TD></TD>
+{% else %}
+<TD>{{ week.name }}</TD>
+{% endif %}
+<TD>
+{% if week.st_link is defined %}
+<A HREF="{{ week.st_link }}" target="_blank">{{ week.version }}</A>
+{% else %}
+{{ week.version }}
+{% endif %}
+</TD>
+<TD align='center'><A HREF="{{ nav.mplogs_url }}{{ week.dir }}starcheck.html" target="_blank">{{ week.version }}</A>
+</TD>
+<TD style='color:{{week.color}}'>{{ week.planned_start }}</TD>
+<TD style='color:{{week.color}}'>{{ week.planned_stop }}</TD>
+{% if week.actual_cmd_start is none %}
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+{% else %}
+<TD>{{ week.actual_cmd_start }}</TD>
+<TD style='color:{{week.runstopcolor}}'>{{ week.actual_cmd_stop }}</TD>
+{% endif %}
+<TD>{{ week.comment }}</TD>
+<TD>{{ week.mp_comment }}</TD>
+</TR>
+{% endfor %}
+</TABLE>
+
+<H1>All Schedules on One Page</H1>
+<A HREF="schedules_all.html">All Schedules</A> (from 2002)
+
+<H1>Short-Term Schedules</H1>
+
+<TABLE>
+{% for cycle in cycles %}
+<TR><TD><A HREF="{{ cycle['file'] }}">Cycle {{ cycle['cycle'] }}</A><TD>{{ cycle['start'] }} - {{ cycle['stop'] }}</TD></TR>
+{% endfor %}
+</TABLE>
+
+<P>If needed (especially for Cycles 1 and 2), see the <A HREF="https://icxc.harvard.edu/mp/html/schedules.html">SOT MP
+Schedule Page</A>.
+
+
+</BODY>
+</HTML>

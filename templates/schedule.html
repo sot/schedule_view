@@ -1,0 +1,49 @@
+<HTML>
+<HEAD></HEAD>
+<BODY>
+<TABLE BORDER=1>
+<TR>
+<TH>Schedule</TH>
+<TH>MP</TH>
+<TH>Starcheck</TH>
+<TH>Planned Start</TH>
+<TH>Planned Stop</TH>
+<TH>Actual Cmd Start</TH>
+<TH>Actual Cmd Stop</TH>
+<TH>Auto Comment</TH>
+<TH>MP Comment</TH>
+</TR>
+
+{% for week in schedule %}
+<TR>
+{% if week.doprint is none %}
+<TD></TD>
+{% else %}
+<TD>{{ week.name }}</TD>
+{% endif %}
+<TD>
+{% if week.st_link is defined %}
+<A HREF="{{ week.st_link }}" target="_blank">{{ week.version }}</A>
+{% else %}
+{{ week.version }}
+{% endif %}
+</TD>
+<TD align='center'><A HREF="{{ nav.mplogs_url }}{{ week.dir }}starcheck.html" target="_blank">{{ week.version }}</A>
+</TD>
+<TD style='color:{{ week.color}}'>{{ week.planned_start }}</TD>
+<TD style='color:{{ week.color}}'>{{ week.planned_stop }}</TD>
+{% if week.actual_cmd_start is none %}
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+{% else %}
+<TD>{{ week.actual_cmd_start }}</TD>
+<TD style='color:{{ week.runstopcolor }}'>{{ week.actual_cmd_stop }}</TD>
+{% endif %}
+<TD>{{ week.comment }}</TD>
+<TD>{{ week.mp_comment }}</TD>
+</TR>
+{% endfor %}
+</TABLE>
+
+</BODY>
+</HTML>
