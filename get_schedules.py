@@ -185,8 +185,8 @@ def main(opt):
         if week['dir'] in loads['dir']:
             match_loads = loads[loads['dir'] == week['dir']]
             match_loads = np.sort(match_loads, order='datestart')
-            sched['actual_cmd_start'] = match_loads[0]['datestart']
-            sched['actual_cmd_stop'] = match_loads[-1]['datestop']
+            sched['actual_cmd_start'] = min(match_loads['datestart'])
+            sched['actual_cmd_stop'] = max(match_loads['datestop'])
             sched['color'] = 'black'
             load = match_loads[0]
             all_week_loads = sqlaca.fetchall(
@@ -196,11 +196,19 @@ def main(opt):
                    order by load_segment"""
                 % (load['file'], load['sumfile_modtime']))
             # does the run stop time match the plan?
-            last_run_cmd_time = match_loads[-1]['datestop']
-            last_planned_cmd_time = all_week_loads[-1]['last_cmd_time']
+            last_run_cmd_time = max(match_loads['datestop'])
+            last_planned_cmd_time = max(all_week_loads['last_cmd_time'])
             if not last_run_cmd_time == last_planned_cmd_time:
                 comments.append('int. at %s' % match_loads[-1]['datestop'])
                 sched['runstopcolor'] = 'darkred'
+            if load['datestart'] > '2011:335':
+                science_loads = match_loads[[match_loads['load_scs'] > 130]]
+                if len(science_loads):
+                    science_cmd_stop = max(science_loads['datestop'])
+                    if science_cmd_stop < last_run_cmd_time:
+                        comments.append('science-only int. at %s'
+                                        % science_cmd_stop)
+                        sched['runstopcolor'] = 'darkgreen'
         if len(comments):
             sched['comment'] = ','.join(comments)
         schedule.append([sched[x] for x in sched_keys])
