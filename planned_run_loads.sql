@@ -13,5 +13,5 @@ and l.year = b.year
 and l.load_scs = b.load_scs) 
 join tl_processing p on 
 (b.sumfile_modtime = p.sumfile_modtime 
-and b.file = p.file 
-and b.year = p.year);
+and b.file = p.file);
+
