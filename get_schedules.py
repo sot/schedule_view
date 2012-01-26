@@ -64,23 +64,8 @@ def main(opt):
         nav = file_nav
 
     # fetch all of the loads that ran
-    loads = sqlaca.fetchall("""select load_segment_id,
-                               l.load_segment, l.year,
-                               p.replan, p.bcf_cmd_count, p.replan_cmds,
-                               p.processing_tstart, p.processing_tstop,
-                               b.file, b.sumfile_modtime,
-                               b.first_cmd_time, b.last_cmd_time ,
-                               t.dir, t.datestart, t.datestop
-                               from timelines as t
-                               join load_segments l on t.load_segment_id = l.id
-                               join tl_built_loads b on (
-                                  l.load_segment = b.load_segment
-                                  and l.year = b.year
-                               )
-                               join tl_processing p on (
-                                    b.sumfile_modtime = p.sumfile_modtime
-                                    and b.file = p.file and b.year = p.year )
-                               order by t.datestart""")
+    loads = sqlaca.fetchall("""select * from planned_run_loads
+                               order by datestart""")
 
     # get all of the short term schedules from MP
     short_term_top = glob('%s/cycle*/????????.html' % mp_sched_path)
