@@ -198,19 +198,20 @@ def main(opt):
             # does the run stop time match the plan?
             last_run_cmd_time = max(match_loads['datestop'])
             last_planned_cmd_time = max(all_week_loads['last_cmd_time'])
-            if not last_run_cmd_time == last_planned_cmd_time:
-                comments.append('int. at %s' % match_loads[-1]['datestop'])
-                sched['runstopcolor'] = 'darkred'
             if load['datestart'] > '2011:335':
                 science_loads = match_loads[[match_loads['load_scs'] > 130]]
                 if len(science_loads):
                     science_cmd_stop = max(science_loads['datestop'])
                     if science_cmd_stop < last_run_cmd_time:
-                        comments.append('science-only int. at %s'
+                        comments.append('observing-only int. at %s'
                                         % science_cmd_stop)
                         sched['runstopcolor'] = 'darkgreen'
+            if not last_run_cmd_time == last_planned_cmd_time:
+                comments.append('int. at %s' % match_loads[-1]['datestop'])
+                sched['runstopcolor'] = 'darkred'
+
         if len(comments):
-            sched['comment'] = ','.join(comments)
+            sched['comment'] = ', '.join(comments)
         schedule.append([sched[x] for x in sched_keys])
 
     # make records
