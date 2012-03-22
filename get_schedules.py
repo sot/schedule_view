@@ -134,7 +134,6 @@ def main(opt):
         comment='&nbsp;',
         mp_comment='&nbsp;')
 
-
     # for each planned week, figure out if it ran or not, and either way,
     # push a dictionary for it to the master list
     schedule = []
@@ -198,16 +197,23 @@ def main(opt):
             # does the run stop time match the plan?
             last_run_cmd_time = max(match_loads['datestop'])
             last_planned_cmd_time = max(all_week_loads['last_cmd_time'])
+            observing_int_date = None
+            vehicle_int_date = None
             if load['datestart'] > '2011:335':
                 science_loads = match_loads[[match_loads['load_scs'] > 130]]
                 if len(science_loads):
                     science_cmd_stop = max(science_loads['datestop'])
                     if science_cmd_stop < last_run_cmd_time:
-                        comments.append('observing-only int. at %s'
-                                        % science_cmd_stop)
-                        sched['runstopcolor'] = 'darkgreen'
+                        observing_int_date = science_cmd_stop
             if not last_run_cmd_time == last_planned_cmd_time:
-                comments.append('int. at %s' % match_loads[-1]['datestop'])
+                vehicle_int_date = last_run_cmd_time
+            if (observing_int_date and
+                observing_int_date != vehicle_int_date):
+                comments.append('observing-only int. at %s'
+                                % observing_int_date)
+                sched['runstopcolor'] = 'darkgreen'
+            if vehicle_int_date:
+                comments.append('full int. at %s' % vehicle_int_date)
                 sched['runstopcolor'] = 'darkred'
 
         if len(comments):
