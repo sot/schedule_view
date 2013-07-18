@@ -59,6 +59,8 @@ def main(opt):
     """
 
     outdir = opt.outdir
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
     nav = web_nav
     if opt.fileurls:
         nav = file_nav
@@ -107,7 +109,7 @@ def main(opt):
                         where processing_tstart > '2002:007:13:35:00.000'
                         order by sumfile_modtime""")
 
-    sched_keys = ['sumfile_modtime', 'dir', 'doprint',
+    sched_keys = ['sumfile_modtime', 'dir', 'doprint', 'sosa',
                   'color', 'runstopcolor',
                   'label', 'name',
                   'version', 'sortday', 'cycle', 'st_link',
@@ -119,6 +121,7 @@ def main(opt):
         sumfile_modtime=None,
         dir=None,
         doprint=None,
+        sosa=None,
         color='grey',
         runstopcolor='black',
         label=None,
@@ -143,6 +146,8 @@ def main(opt):
         sched['sumfile_modtime'] = week['sumfile_modtime']
         sched['dir'] = week['dir']
         sched['planned_start'] = week['planning_tstart']
+        if sched['planned_start'] > '2011:335':
+            sched['sosa'] = 1
         sched['planned_stop'] = week['planning_tstop']
         if week['replan'] == 1:
             comments.append('replan/re-open')

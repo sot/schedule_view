@@ -8,6 +8,7 @@
 <TH>Schedule</TH>
 <TH>MP</TH>
 <TH>Starcheck</TH>
+<TH>V Diff</TH>
 <TH>Planned Start</TH>
 <TH>Planned Stop</TH>
 <TH>Actual Cmd Start</TH>
@@ -32,8 +33,14 @@
 </TD>
 <TD align='center'><A HREF="{{ nav.mplogs_url }}{{ week.dir }}starcheck.html" target="_blank">{{ week.version }}</A>
 </TD>
-<TD style='color:{{ week.color}}'>{{ week.planned_start }}</TD>
-<TD style='color:{{ week.color}}'>{{ week.planned_stop }}</TD>
+{% if week.sosa is none %}
+<TD>&nbsp;</TD>
+{% else %}
+<TD align='center'><A HREF="{{ nav.mplogs_url }}{{ week.dir }}diff_starcheck.html" target="_blank">{{ week.version }}</A>
+{% endif %}
+</TD>
+<TD style='color:{{week.color}}'>{{ week.planned_start }}</TD>
+<TD style='color:{{week.color}}'>{{ week.planned_stop }}</TD>
 {% if week.actual_cmd_start is none %}
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
