@@ -20,7 +20,7 @@ file_nav = {'mplogs_url': 'file://%s' % mp_mplogs_path,
             'mp_sched_url': 'file://%s' % mp_sched_path}
 web_nav = {'mplogs_url': 'https://icxc.harvard.edu/mp/mplogs',
            'mp_sched_path': mp_sched_path,
-           'mp_sched_url': 'https://icxc.harvard.edu/mp/schedules/'}
+           'mp_sched_url': 'https://icxc.harvard.edu/mp/schedules'}
 
 
 # this is only used if we can't determine the cycle from the path
