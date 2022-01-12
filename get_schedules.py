@@ -11,7 +11,7 @@ from Ska.DBI import DBI
 import TableParse
 
 
-sqlaca = DBI(dbi='sybase', server='sybase', user='aca_read', database='aca')
+cmd_states_db3 = os.path.join(os.environ['SKA'], 'data', 'cmd_states', 'cmd_states.db3')
 
 mp_sched_path = '/proj/web-icxc/htdocs/mp/schedules'
 mp_mplogs_path = '/proj/web-icxc/htdocs/mp/mplogs'
@@ -66,8 +66,23 @@ def main(opt):
         nav = file_nav
 
     # fetch all of the loads that ran
-    loads = sqlaca.fetchall("""select * from planned_run_loads
-                               order by datestart""")
+    with DBI(dbi='sqlite', server=cmd_states_db3) as db:
+        loads = db.fetchall(
+            """select load_segment_id, l.load_segment, l.year, l.load_scs,
+            p.replan, p.bcf_cmd_count, p.replan_cmds,
+            p.processing_tstart, p.processing_tstop,
+            b.file, b.sumfile_modtime,
+            b.first_cmd_time, b.last_cmd_time,
+            t.dir, t.datestart, t.datestop
+            from timelines as t
+            join load_segments l on t.load_segment_id = l.id
+            join tl_built_loads b on
+            (l.load_segment = b.load_segment
+            and l.year = b.year
+            and l.load_scs = b.load_scs)
+            join tl_processing p on
+            (b.sumfile_modtime = p.sumfile_modtime
+            and b.file = p.file) order by t.datestart;""")
 
     # get all of the short term schedules from MP
     short_term_top = glob('%s/cycle*/????????.html' % mp_sched_path)
@@ -105,7 +120,8 @@ def main(opt):
                                      names=['week', 'version', 'comment'])
 
     # everything that was planned
-    planning = sqlaca.fetchall("""select * from tl_processing
+    with DBI(dbi='sqlite', server=cmd_states_db3) as db:
+        planning = db.fetchall("""select * from tl_processing
                         where processing_tstart > '2002:007:13:35:00.000'
                         order by sumfile_modtime""")
 
@@ -193,12 +209,13 @@ def main(opt):
             sched['actual_cmd_stop'] = max(match_loads['datestop'])
             sched['color'] = 'black'
             load = match_loads[0]
-            all_week_loads = sqlaca.fetchall(
-                """select * from tl_built_loads
-                   where file = '%s'
-                   and sumfile_modtime = %f
-                   order by load_segment"""
-                % (load['file'], load['sumfile_modtime']))
+            with DBI(dbi='sqlite', server=cmd_states_db3) as db:
+                all_week_loads = db.fetchall(
+                    """select * from tl_built_loads
+                    where file = '%s'
+                    and sumfile_modtime = %f
+                    order by load_segment"""
+                    % (load['file'], load['sumfile_modtime']))
             # does the run stop time match the plan?
             last_run_cmd_time = max(match_loads['datestop'])
             last_planned_cmd_time = max(all_week_loads['last_cmd_time'])
